@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 /*
@@ -17,9 +19,9 @@ Big Unsigned Integer implementation in Go, with these operations:
 8. Power 2 numbers
 
 And these utility functions:
-1. Random a number
-2. Read a number
-3. Print a number
+1. Read a number (Parser)
+2. Print a number (ToString)
+3. Random a number
 4. Benchmarks
 
 Number representation:
@@ -30,9 +32,18 @@ func main() {
 	input1 := "1123456789123456789123456789"
 	input2 := "123123456789123456789"
 	input3 := "00000123123456789123456789"
-	fmt.Println(ParseUnsignedBigInteger(input1))
-	fmt.Println(ParseUnsignedBigInteger(input2))
-	fmt.Println(ParseUnsignedBigInteger(input3))
+	number1 := ParseUnsignedBigInteger(input1)
+	number2 := ParseUnsignedBigInteger(input2)
+	number3 := ParseUnsignedBigInteger(input3)
+	string1 := UnsignedBigIntegerToString(number1)
+	string2 := UnsignedBigIntegerToString(number2)
+	string3 := UnsignedBigIntegerToString(number3)
+	fmt.Println(number1)
+	fmt.Println(number2)
+	fmt.Println(number3)
+	fmt.Println(input1, string1, cmp.Equal(input1, string1))
+	fmt.Println(input2, string2, cmp.Equal(input2, string2))
+	fmt.Println(input3, string3, cmp.Equal(strings.TrimLeft(input3, "0"), string3))
 }
 
 // Read a 1 line of number from standard input, then parse it
@@ -54,6 +65,14 @@ func ParseUnsignedBigInteger(input string) []int {
 		words = append(words, word)
 	}
 	return words
+}
+
+func UnsignedBigIntegerToString(input []int) string {
+	var stringBuilder strings.Builder
+	for i := len(input) - 1; i >= 0; i-- {
+		stringBuilder.WriteString(fmt.Sprint(input[i]))
+	}
+	return stringBuilder.String()
 }
 
 func ChunksAndReverseWord(input string, chunkSize int) []string {
