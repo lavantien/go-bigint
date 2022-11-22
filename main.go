@@ -76,7 +76,6 @@ func UnsignedBigIntegerToString(input []int) string {
 }
 
 func ChunksAndReverseWord(input string, chunkSize int) []string {
-	fmt.Println(input)
 	if len(input) == 0 {
 		return nil
 	}
