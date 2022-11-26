@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
@@ -32,12 +33,12 @@ func main() {
 	input1 := "1123456789123456789123456789"
 	input2 := "123123456789123456789"
 	input3 := "00000123123456789123456789"
-	number1 := ParseUnsignedBigInteger(input1)
-	number2 := ParseUnsignedBigInteger(input2)
-	number3 := ParseUnsignedBigInteger(input3)
-	string1 := UnsignedBigIntegerToString(number1)
-	string2 := UnsignedBigIntegerToString(number2)
-	string3 := UnsignedBigIntegerToString(number3)
+	number1 := Parse(input1)
+	number2 := Parse(input2)
+	number3 := Parse(input3)
+	string1 := ToString(number1)
+	string2 := ToString(number2)
+	string3 := ToString(number3)
 	fmt.Println(number1)
 	fmt.Println(number2)
 	fmt.Println(number3)
@@ -46,14 +47,13 @@ func main() {
 	fmt.Println(input3, string3, cmp.Equal(strings.TrimLeft(input3, "0"), string3))
 }
 
-// Read a 1 line of number from standard input, then parse it
-// Nil return means there is errors or wrong formant in the input
-func ParseUnsignedBigInteger(input string) []int {
+// Parse the string, and then padding zeros until the length is 2^x
+func Parse(input string) []int {
 	if len(input) < 1 || input[0] == '-' {
 		return nil
 	}
 	input = strings.TrimLeft(input, "0")
-	tokens := ChunksAndReverseWord(ReverseString(input), 9)
+	tokens := TokenizeAndReverse(ReverseString(input), 9)
 	words := []int{}
 	for _, token := range tokens {
 		var word int
@@ -64,18 +64,26 @@ func ParseUnsignedBigInteger(input string) []int {
 		}
 		words = append(words, word)
 	}
+	currentSize := len(words)
+	// check if currentSize is a power of two or not
+	if (currentSize & (currentSize - 1)) != 0 {
+		nextSize := math.Pow(2, float64(int(math.Log2(float64(currentSize))+1)))
+		for i := currentSize; i < int(nextSize); i++ {
+			words = append(words, 0)
+		}
+	}
 	return words
 }
 
-func UnsignedBigIntegerToString(input []int) string {
+func ToString(input []int) string {
 	var stringBuilder strings.Builder
 	for i := len(input) - 1; i >= 0; i-- {
 		stringBuilder.WriteString(fmt.Sprint(input[i]))
 	}
-	return stringBuilder.String()
+	return strings.TrimLeft(stringBuilder.String(), "0")
 }
 
-func ChunksAndReverseWord(input string, chunkSize int) []string {
+func TokenizeAndReverse(input string, chunkSize int) []string {
 	if len(input) == 0 {
 		return nil
 	}
